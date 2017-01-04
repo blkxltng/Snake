@@ -13,9 +13,11 @@ import android.graphics.Point;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -66,6 +68,9 @@ public class GameActivity extends AppCompatActivity {
     int blockSize;
     int numBlocksWide;
     int numBlocksHigh;
+
+    //Swipe Detection
+    //GestureDetectorCompat mGestureDetectorCompat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -191,6 +196,8 @@ public class GameActivity extends AppCompatActivity {
         volatile boolean playingSnake;
         Paint mPaint;
 
+        GestureDetectorCompat mDetectorCompat;
+
         public SnakeView(Context context) {
             super(context);
             mHolder = getHolder();
@@ -198,6 +205,8 @@ public class GameActivity extends AppCompatActivity {
 
             snakeX = new int[200];
             snakeY = new int[200];
+
+            mDetectorCompat = new GestureDetectorCompat(getApplicationContext(), mSimpleOnGestureListener);
 
             //Our starting snake
             getSnake();
@@ -280,7 +289,7 @@ public class GameActivity extends AppCompatActivity {
             if(snakeX[0] == -1) dead = true;
             if(snakeX[0] >= numBlocksWide) dead = true;
             if(snakeY[0] == -1) dead = true;
-            if(snakeX[0] == numBlocksHigh) dead = true;
+            if(snakeY[0] == numBlocksHigh) dead = true;
             //or eaten ourself?
             for(int i = snakeLength-1; i > 0; i--) {
                 if((i > 4) && (snakeX[0] == snakeX[i]) && (snakeY[0] == snakeY[i])) {
@@ -365,28 +374,75 @@ public class GameActivity extends AppCompatActivity {
         public boolean onTouchEvent(MotionEvent event) {
             //return super.onTouchEvent(event);
 
-            switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_UP:
-                    if(event.getX() >= screenWidth/2) {
-                        //turn right
-                        directionOfTravel++;
+//            switch (event.getAction() & MotionEvent.ACTION_MASK) {
+//                case MotionEvent.ACTION_UP:
+//                    if(event.getX() >= screenWidth/2) {
+//                        //turn right
+//                        directionOfTravel++;
+//
+//                        if(directionOfTravel == 4) {
+//                            //no such direction, loop back to 0
+//                            directionOfTravel = 0;
+//                        }
+//                    } else { //turn left
+//                        directionOfTravel--;
+//                        if(directionOfTravel == -1) {
+//                            //no such direction, loop back to 3
+//                            directionOfTravel = 3;
+//                        }
+//                    }
+//            }
 
-                        if(directionOfTravel == 4) {
-                            //no such direction, loop back to 0
-                            directionOfTravel = 0;
-                        }
-                    } else { //turn left
-                        directionOfTravel--;
-                        if(directionOfTravel == -1) {
-                            //no such direction, loop back to 3
-                            directionOfTravel = 3;
-                        }
-                    }
-            }
-
-            return true;
+            return mDetectorCompat.onTouchEvent(event);
         }
 
+        GestureDetector.SimpleOnGestureListener mSimpleOnGestureListener =
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDown(MotionEvent event) {
+                        return true;
+                    }
 
+                    @Override
+                    public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {
+                        switch (getSlope(event1.getX(), event1.getY(), event2.getX(), event2.getY())) {
+                            case 1:
+                                Log.d("Fling", "up");
+                                if(directionOfTravel != 2) directionOfTravel = 0;
+                                return true;
+                            case 2:
+                                Log.d("Fling", "left");
+                                if(directionOfTravel != 1) directionOfTravel = 3;
+                                return true;
+                            case 3:
+                                Log.d("Fling", "down");
+                                if(directionOfTravel != 0) directionOfTravel = 2;
+                                return true;
+                            case 4:
+                                Log.d("Fling", "right");
+                                if(directionOfTravel != 3) directionOfTravel = 1;
+                                return true;
+                        }
+                        return false;
+                    }
+
+                    private int getSlope(float x1, float y1, float x2, float y2) {
+                        Double angle = Math.toDegrees(Math.atan2(y1 - y2, x2 - x1));
+                        if (angle > 45 && angle <= 135)
+                            // top
+                            return 1;
+                        if (angle >= 135 && angle < 180 || angle < -135 && angle > -180)
+                            // left
+                            return 2;
+                        if (angle < -45 && angle>= -135)
+                            // down
+                            return 3;
+                        if (angle > -45 && angle <= 45)
+                            // right
+                            return 4;
+                        return 0;
+                    }
+                };
     }
+
 }

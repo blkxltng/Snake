@@ -2,6 +2,7 @@ package com.blkxltng.snake;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -36,7 +37,13 @@ public class MainActivity extends AppCompatActivity {
     //Statistics
     long lastFrameTime;
     int fps;
-    int highScore;
+
+    //For the High Score
+    SharedPreferences mSharedPreferences;
+    String dataName = "MyData";
+    String intName = "MyScore";
+    int defaultInt = 0;
+    public static int highScore;
 
     //Start the game
     Intent mIntent;
@@ -52,11 +59,14 @@ public class MainActivity extends AppCompatActivity {
         screenWidth = size.x;
         screenHeight = size.y;
 
-        headAnimBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.head_sprite_sheet2);
+        headAnimBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.animsnake);
 
         mSnakeAnimView = new SnakeAnimView(this);
 
         setContentView(mSnakeAnimView);
+
+        mSharedPreferences = getSharedPreferences(dataName, MODE_PRIVATE);
+        highScore = mSharedPreferences.getInt(intName, defaultInt);
 
         mIntent = new Intent(this, GameActivity.class);
     }
@@ -152,12 +162,12 @@ public class MainActivity extends AppCompatActivity {
             if(mHolder.getSurface().isValid()) {
                 mCanvas = mHolder.lockCanvas();
                 //Paint mPaint = new Paint();
-                mCanvas.drawColor(Color.BLACK); //Background color
+                mCanvas.drawColor(Color.argb(255, 145, 227, 151)); //Background color
                 mPaint.setColor(Color.argb(255, 255, 255, 255));
                 mPaint.setTextSize(150);
-                mCanvas.drawText("Snake", 10, 150, mPaint);
+                mCanvas.drawText("Snake!", 10, 150, mPaint);
                 mPaint.setTextSize(25);
-                mCanvas.drawText(" HighScore: " + highScore, 10, screenHeight-50, mPaint);
+                mCanvas.drawText(" High Score: " + highScore, 10, screenHeight-50, mPaint);
 
                 //Draw the snake's head
                 //Make this Rect whatever size and location you like

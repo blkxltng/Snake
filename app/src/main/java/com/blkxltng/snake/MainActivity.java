@@ -11,14 +11,19 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.games.Games;
+
+public class MainActivity extends BaseGameActivity implements View.OnClickListener {
 
     Canvas mCanvas;
     SnakeAnimView mSnakeAnimView;
@@ -48,6 +53,12 @@ public class MainActivity extends AppCompatActivity {
     //Start the game
     Intent mIntent;
 
+    //Other buttons
+    Button buttonLeader;
+    Button buttonAchievements;
+    com.google.android.gms.common.SignInButton buttonSignIn;
+    Button buttonSignOut;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +80,23 @@ public class MainActivity extends AppCompatActivity {
         highScore = mSharedPreferences.getInt(intName, defaultInt);
 
         mIntent = new Intent(this, GameActivity.class);
+
+        //Load the UI on top of the SnakeAnimView
+        LayoutInflater mInflater = LayoutInflater.from(this);
+        View hudView = mInflater.inflate(R.layout.activity_main, null);
+
+        this.addContentView(hudView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        //Game Service Buttons
+        buttonSignIn = (com.google.android.gms.common.SignInButton) findViewById(R.id.buttonSignIn);
+        buttonSignIn.setOnClickListener(this);
+        buttonSignOut = (Button) findViewById(R.id.buttonSignOut);
+        buttonSignOut.setOnClickListener(this);
+        buttonAchievements = (Button) findViewById(R.id.buttonAchievements);
+        buttonAchievements.setOnClickListener(this);
+        buttonLeader = (Button) findViewById(R.id.buttonLeader);
+        buttonLeader.setOnClickListener(this);
     }
 
     @Override
@@ -117,6 +145,72 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         mSnakeAnimView.pause();
+    }
+
+    /**
+     * Called when sign-in fails. As a result, a "Sign-In" button can be
+     * shown to the user; when that button is clicked, call
+     *
+     * @link{GamesHelper#beginUserInitiatedSignIn . Note that not all calls
+     * to this method mean an
+     * error; it may be a result
+     * of the fact that automatic
+     * sign-in could not proceed
+     * because user interaction
+     * was required (consent
+     * dialogs). So
+     * implementations of this
+     * method should NOT display
+     * an error message unless a
+     * call to @link{GamesHelper#
+     * hasSignInError} indicates
+     * that an error indeed
+     * occurred.
+     */
+    @Override
+    public void onSignInFailed() {
+        //Show sign-in button
+        buttonSignIn.setVisibility(View.VISIBLE);
+        buttonSignOut.setVisibility(View.GONE);
+    }
+
+    /**
+     * Called when sign-in succeeds.
+     */
+    @Override
+    public void onSignInSucceeded() {
+        //Show sign-out button, hide sign-in button
+        buttonSignIn.setVisibility(View.GONE);
+        buttonSignOut.setVisibility(View.VISIBLE);
+        buttonLeader.setVisibility(View.VISIBLE);
+        buttonAchievements.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        switch (view.getId()) {
+            case R.id.buttonSignIn:
+                beginUserInitiatedSignIn();
+                break;
+
+            case R.id.buttonSignOut:
+                signOut();
+                buttonSignIn.setVisibility(View.VISIBLE);
+                buttonSignOut.setVisibility(View.GONE);
+                buttonLeader.setVisibility(View.GONE);
+                buttonAchievements.setVisibility(View.GONE);
+                break;
+
+            case R.id.buttonAchievements:
+                startActivity(Games.Achievements.getAchievementsIntent(getApiClient()));
+                break;
+
+            case R.id.buttonLeader:
+                startActivityForResult(Games.Leaderboards
+                        .getLeaderboardIntent(getApiClient(), getResources().getString(R.string.leaderboard_snake)),0);
+                break;
+        }
     }
 
     class SnakeAnimView extends SurfaceView implements Runnable {

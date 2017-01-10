@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Google Play game services IDs.
+Save this file as res/values/games-ids.xml in your project.
+-->
+<resources>
+    <string name="app_id">963362952011</string>
+    <string name="package_name">com.blkxltng.snake</string>
+    <string name="achievement_im_on_a_diet">CgkIy6ag54QcEAIQAg</string>
+    <string name="achievement_im_still_hungry">CgkIy6ag54QcEAIQAw</string>
+    <string name="achievement_halfway_there">CgkIy6ag54QcEAIQBA</string>
+    <string name="achievement_almost_full">CgkIy6ag54QcEAIQBQ</string>
+    <string name="achievement_im_stuffed">CgkIy6ag54QcEAIQBg</string>
+    <string name="achievement_baby_snake">CgkIy6ag54QcEAIQBw</string>
+    <string name="achievement_toddler_snake">CgkIy6ag54QcEAIQCA</string>
+    <string name="achievement_teen_snake">CgkIy6ag54QcEAIQCQ</string>
+    <string name="achievement_adult_snake">CgkIy6ag54QcEAIQCg</string>
+    <string name="achievement_its_a_monster">CgkIy6ag54QcEAIQCw</string>
+    <string name="leaderboard_snake">CgkIy6ag54QcEAIQAQ</string>
+</resources>

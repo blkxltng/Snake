@@ -11,8 +11,45 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.blkxltng.snake.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/buttonLeader"
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:text="Hello World!"/>
+        android:text="Leaderboards"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/buttonAchievements"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:text="Achievements"
+        android:gravity="center_vertical"
+        android:layout_alignTop="@id/buttonLeader"
+        android:layout_toLeftOf="@id/buttonLeader"
+        android:visibility="gone"/>
+
+    <!-- sign-in button -->
+    <com.google.android.gms.common.SignInButton
+        android:id="@+id/buttonSignIn"
+        android:layout_width="140dp"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"/>
+
+    <!-- sign-out button -->
+    <Button
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonSignOut"
+        android:text="Sign Out"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_horizontal"
+        android:visibility="gone"/>
 </RelativeLayout>

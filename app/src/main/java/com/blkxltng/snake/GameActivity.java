@@ -17,7 +17,6 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -26,10 +25,12 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.google.android.gms.games.Games;
+
 import java.io.IOException;
 import java.util.Random;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends BaseGameActivity {
 
     Canvas mCanvas;
     SnakeView mSnakeView;
@@ -117,6 +118,9 @@ public class GameActivity extends AppCompatActivity {
     String intName = "MyScore";
     int defaultInt = 0;
     int highScore;
+
+    //For Acheivements
+    int applesMunchedThisTurn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -271,6 +275,39 @@ public class GameActivity extends AppCompatActivity {
                 (flowerFrameNumber * frameWidth +frameWidth)-1, frameHeight);
     }
 
+    /**
+     * Called when sign-in fails. As a result, a "Sign-In" button can be
+     * shown to the user; when that button is clicked, call
+     *
+     * @link{GamesHelper#beginUserInitiatedSignIn . Note that not all calls
+     * to this method mean an
+     * error; it may be a result
+     * of the fact that automatic
+     * sign-in could not proceed
+     * because user interaction
+     * was required (consent
+     * dialogs). So
+     * implementations of this
+     * method should NOT display
+     * an error message unless a
+     * call to @link{GamesHelper#
+     * hasSignInError} indicates
+     * that an error indeed
+     * occurred.
+     */
+    @Override
+    public void onSignInFailed() {
+
+    }
+
+    /**
+     * Called when sign-in succeeds.
+     */
+    @Override
+    public void onSignInSucceeded() {
+
+    }
+
     class SnakeView extends SurfaceView implements Runnable {
 
         Thread mThread = null;
@@ -350,6 +387,27 @@ public class GameActivity extends AppCompatActivity {
 
             //Did they get the apple?
             if(snakeX[0] == appleX && snakeY[0] == appleY) {
+                applesMunchedThisTurn++;
+                if (isSignedIn()) {
+                    if (applesMunchedThisTurn > 0) {
+                        //Long enough for length achievement?
+                        if(snakeLength == 5) {
+                            Games.Achievements.unlock(getApiClient(), getResources().getString(R.string.achievement_baby_snake));
+                        }
+                        if(snakeLength == 10) {
+                            Games.Achievements.unlock(getApiClient(), getResources().getString(R.string.achievement_toddler_snake));
+                        }
+                        if(snakeLength == 25) {
+                            Games.Achievements.unlock(getApiClient(), getResources().getString(R.string.achievement_teen_snake));
+                        }
+                        if(snakeLength == 35) {
+                            Games.Achievements.unlock(getApiClient(), getResources().getString(R.string.achievement_adult_snake));
+                        }
+                        if(snakeLength == 50) {
+                            Games.Achievements.unlock(getApiClient(), getResources().getString(R.string.achievement_its_a_monster));
+                        }
+                    }
+                }
                 //grow the snake
                 snakeLength++;
                 //replace the apple
@@ -406,6 +464,21 @@ public class GameActivity extends AppCompatActivity {
             }
 
             if(dead) {
+
+                //Update Leaderboards
+                if(isSignedIn()) {
+
+                    if(applesMunchedThisTurn > 0) {
+                        Games.Achievements.increment(getApiClient(), getResources().getString(R.string.achievement_im_on_a_diet), applesMunchedThisTurn);
+                        Games.Achievements.increment(getApiClient(), getResources().getString(R.string.achievement_im_still_hungry), applesMunchedThisTurn);
+                        Games.Achievements.increment(getApiClient(), getResources().getString(R.string.achievement_halfway_there), applesMunchedThisTurn);
+                        Games.Achievements.increment(getApiClient(), getResources().getString(R.string.achievement_almost_full), applesMunchedThisTurn);
+                        Games.Achievements.increment(getApiClient(), getResources().getString(R.string.achievement_im_stuffed), applesMunchedThisTurn);
+                        applesMunchedThisTurn = 0;
+                    }
+                    Games.Leaderboards.submitScore(getApiClient(), getResources().getString(R.string.leaderboard_snake), score);
+                }
+
                 //start again
                 mSoundPool.play(sndDeath, 1, 1, 0, 0, 1);
                 if(score > highScore) {

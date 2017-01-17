@@ -203,7 +203,7 @@ public class MainActivity extends BaseGameActivity implements View.OnClickListen
                 break;
 
             case R.id.buttonAchievements:
-                startActivity(Games.Achievements.getAchievementsIntent(getApiClient()));
+                startActivityForResult(Games.Achievements.getAchievementsIntent(getApiClient()), 0);
                 break;
 
             case R.id.buttonLeader:
